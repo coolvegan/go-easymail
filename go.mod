@@ -1,4 +1,4 @@
-module gittea.kittel.dev/marco/Go-Email
+module github.com/coolvegan/go-easymail
 
 go 1.23.4
 

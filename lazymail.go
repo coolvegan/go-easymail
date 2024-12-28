@@ -48,7 +48,25 @@ func BasicEmailSend(seconds int) func(l *LazyMail) {
 			if err != nil {
 				continue
 			}
-			fmt.Printf("\n Empfänger: %s\n Betreff: %s\n Inhalt: %s\n", msg.recipient, msg.subject, msg.body)
+			go l.email.Send(msg.sender, msg.recipient, msg.subject, msg.body)
+
+		}
+	}
+}
+
+func SendUpToEightEmailsAndThenDelay(seconds int) func(l *LazyMail) {
+	return func(l *LazyMail) {
+		i := 0
+		for {
+			i++
+			if i > 8 {
+				time.Sleep(time.Duration(seconds) * time.Millisecond)
+				i = 0
+			}
+			msg, err := l.messageQueue.dequeue()
+			if err != nil {
+				continue
+			}
 			go l.email.Send(msg.sender, msg.recipient, msg.subject, msg.body)
 
 		}
