@@ -9,6 +9,7 @@ import (
 
 type Emailer interface {
 	Send(sender, recipient, subject, body string) error
+	SendWithFile(sender, recipient, subject, body, filename string) error
 	newEmail() *mail.Client
 }
 
@@ -32,6 +33,31 @@ func (e *Email) Send(sender, recipient, subject, body string) error {
 	}
 	message.Subject(subject)
 	message.SetBodyString(mail.TypeTextHTML, body)
+
+	client := e.newEmail()
+
+	if err := client.DialAndSend(message); err != nil {
+		log.Printf("failed to deliver mail: %s", err)
+		return err
+	}
+	return nil
+}
+
+func (e *Email) SendWithFile(sender, recipient, subject, body, filename string) error {
+	if len(sender) == 0 || len(recipient) == 0 || len(subject) == 0 {
+		return fmt.Errorf("Sender: %s, Recepient: %s, Subject: %s", sender, recipient, body)
+	}
+	message := mail.NewMsg()
+	if err := message.FromFormat(sender, e.username); err != nil {
+		log.Printf("failed to set FROM address: %s", err)
+	}
+
+	if err := message.To(recipient); err != nil {
+		log.Printf("failed to set TO address: %s", err)
+	}
+	message.Subject(subject)
+	message.SetBodyString(mail.TypeTextHTML, body)
+	message.AttachFile(filename)
 
 	client := e.newEmail()
 
