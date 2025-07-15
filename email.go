@@ -9,7 +9,7 @@ import (
 
 type Emailer interface {
 	Send(sender, recipient, subject, body string) error
-	SendWithFile(sender, recipient, subject, body, filename string) error
+	SendWithFile(sender, recipient, subject, body string, filenames ...string) error
 	newEmail() *mail.Client
 }
 
@@ -43,9 +43,9 @@ func (e *Email) Send(sender, recipient, subject, body string) error {
 	return nil
 }
 
-func (e *Email) SendWithFile(sender, recipient, subject, body, filename string) error {
-	if len(sender) == 0 || len(recipient) == 0 || len(subject) == 0 || len(filename) == 0 {
-		return fmt.Errorf("Sender: %s, Recepient: %s, Subject: %s, Filename %s", sender, recipient, body, filename)
+func (e *Email) SendWithFile(sender, recipient, subject, body string, filenames ...string) error {
+	if len(sender) == 0 || len(recipient) == 0 || len(subject) == 0 || len(filenames[0]) == 0 {
+		return fmt.Errorf("Sender: %s, Recepient: %s, Subject: %s, Filename %s", sender, recipient, body, filenames[0])
 	}
 
 	message := mail.NewMsg()
@@ -58,7 +58,9 @@ func (e *Email) SendWithFile(sender, recipient, subject, body, filename string) 
 	}
 	message.Subject(subject)
 	message.SetBodyString(mail.TypeTextHTML, body)
-	message.AttachFile(filename)
+	for _, file := range filenames {
+		message.AttachFile(file)
+	}
 
 	client := e.newEmail()
 
