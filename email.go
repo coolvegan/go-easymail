@@ -44,9 +44,10 @@ func (e *Email) Send(sender, recipient, subject, body string) error {
 }
 
 func (e *Email) SendWithFile(sender, recipient, subject, body, filename string) error {
-	if len(sender) == 0 || len(recipient) == 0 || len(subject) == 0 {
-		return fmt.Errorf("Sender: %s, Recepient: %s, Subject: %s", sender, recipient, body)
+	if len(sender) == 0 || len(recipient) == 0 || len(subject) == 0 || len(filename) == 0 {
+		return fmt.Errorf("Sender: %s, Recepient: %s, Subject: %s, Filename %s", sender, recipient, body, filename)
 	}
+
 	message := mail.NewMsg()
 	if err := message.FromFormat(sender, e.username); err != nil {
 		log.Printf("failed to set FROM address: %s", err)

@@ -2,10 +2,9 @@ package eazymail
 
 import (
 	"fmt"
+	"github.com/wneessen/go-mail"
 	"log"
 	"time"
-
-	"github.com/wneessen/go-mail"
 )
 
 type LazyMail struct {
@@ -16,6 +15,11 @@ type LazyMail struct {
 
 func (l *LazyMail) Send(sender, recipient, subject, body string) error {
 	(*l).messageQueue.enqueue(Message{sender: sender, recipient: recipient, subject: subject, body: body})
+	return nil
+}
+
+func (l *LazyMail) SendWithFile(sender, recipient, subject, body, filename string) error {
+	(*l).messageQueue.enqueue(Message{sender: sender, recipient: recipient, subject: subject, body: body, filename: filename})
 	return nil
 }
 
@@ -67,8 +71,11 @@ func SendUpToEightEmailsAndThenDelay(seconds int) func(l *LazyMail) {
 			if err != nil {
 				continue
 			}
-			go l.email.Send(msg.sender, msg.recipient, msg.subject, msg.body)
-
+			if len(msg.filename) > 0 {
+				go l.email.SendWithFile(msg.sender, msg.recipient, msg.subject, msg.body, msg.filename)
+			} else {
+				go l.email.Send(msg.sender, msg.recipient, msg.subject, msg.body)
+			}
 		}
 	}
 }

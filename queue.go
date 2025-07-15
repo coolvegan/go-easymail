@@ -10,6 +10,7 @@ type Message struct {
 	recipient string
 	subject   string
 	body      string
+	filename  string
 }
 
 type Stack []Message
